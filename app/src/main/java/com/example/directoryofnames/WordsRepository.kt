@@ -1,6 +1,6 @@
 package com.example.directoryofnames
 
-object Words {
+object WordsRepository {
     val names = listOf("Aaron",
         "Abraham",
         "Adam",
