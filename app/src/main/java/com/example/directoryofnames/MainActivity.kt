@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,43 +37,16 @@ class MainActivity : AppCompatActivity() {
         rvUsers.layoutManager = LinearLayoutManager(this)
 
         vm = ViewModelProvider(this)[MainViewModel::class.java]
+        searchWindow.addTextChangedListener { vm.filter(it.toString()) }
 
-
-        PublishSubject.create<CharSequence> { emitter ->
-            val searchWatcher = object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                }
-
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                    if (p0 != null) {
-                        emitter.onNext(p0)
-                    }
-                }
-
-                override fun afterTextChanged(p0: Editable?) {
-                }
-            }
-
-            searchWindow.addTextChangedListener(searchWatcher)
-
-        }
-            .debounce(1500, TimeUnit.MILLISECONDS)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                vm.filter(it)
-            }
-    }
-
-    override fun onStart() {
-        super.onStart()
         adapter = UsersAdapter()
         rvUsers.adapter = adapter
 
-        vm.wordsLive.observe(this, {list ->
+        vm.wordsLive.observe(this, { list ->
             adapter.submitList(list)
         })
     }
+
 
     class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bindTo(user: User) {
