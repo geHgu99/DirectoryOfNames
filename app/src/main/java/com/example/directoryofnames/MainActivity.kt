@@ -2,23 +2,18 @@ package com.example.directoryofnames
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.subjects.PublishSubject
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,7 +31,15 @@ class MainActivity : AppCompatActivity() {
         searchWindow = findViewById(R.id.search_bar)
         rvUsers.layoutManager = LinearLayoutManager(this)
 
-        vm = ViewModelProvider(this)[MainViewModel::class.java]
+        vm = ViewModelProvider(this, MainViewModelFactory())
+            .get(MainViewModel::class.java)
+
+        val searchObserver = Observer<String> { search ->
+            searchWindow.setText(search)
+        }
+
+        vm.filterLive.observe(this, searchObserver)
+
         searchWindow.addTextChangedListener { vm.filter(it.toString()) }
 
         adapter = UsersAdapter()

@@ -2,17 +2,20 @@ package com.example.directoryofnames
 
 import com.example.directoryofnames.StaticData.names
 
-object WordsRepository {
+class WordsRepository {
 
-    fun filterRepository(filter: CharSequence): List<User> {
-        val userList = mutableListOf<User>()
-        for (name in names) {
-            if (filter in name) {
-                userList.add(User(name))
+    companion object {
+
+        fun filterRepository(filter: String): List<User> {
+            val userList = mutableListOf<User>()
+            for (name in names) {
+                if (filter in name) {
+                    userList.add(User(name))
+                }
             }
-        }
 
-        Thread.sleep(3000)
-        return userList
+            Thread.sleep(1000)
+            return userList
+        }
     }
 }

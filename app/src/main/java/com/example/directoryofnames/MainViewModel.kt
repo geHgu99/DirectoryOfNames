@@ -4,19 +4,21 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 private const val TAG = "MAIN_VIEW_MODEL"
 
-class MainViewModel : ViewModel() {
+class MainViewModel(private val repository: WordsRepository.Companion) : ViewModel() {
 
     private val wordsLiveMutable = MutableLiveData<List<User>>()
     val wordsLive: LiveData<List<User>> = wordsLiveMutable
-    val filterSubject = PublishSubject.create<CharSequence>()
+
+    private val filterLiveMutable = MutableLiveData<String>()
+    val filterLive: LiveData<String> = filterLiveMutable
+
+    private val filterSubject = PublishSubject.create<String>()
 
     init {
         Log.d(TAG, "VM created")
@@ -24,7 +26,7 @@ class MainViewModel : ViewModel() {
             .debounce(300, TimeUnit.MILLISECONDS, Schedulers.io())
             .observeOn(Schedulers.computation())
             .subscribe {
-                wordsLiveMutable.postValue(WordsRepository.filterRepository(it))
+                wordsLiveMutable.postValue(repository.filterRepository(it))
 
             }
         if (BuildConfig.DEBUG) {
@@ -38,26 +40,10 @@ class MainViewModel : ViewModel() {
         Log.d(TAG, "VM cleared")
     }
 
-    fun filter(text: CharSequence) {
+    fun filter(text: String) {
         Log.d(TAG, "VM filter")
 
         filterSubject.onNext(text)
-
-//        Observable.just(WordsRepository.filterRepository())
-//            .map { names ->
-//                val userList = mutableListOf<User>()
-//                for (name in names) {
-//                    if (text in name) {
-//                        userList.add(User(name))
-//                    }
-//                }
-//                userList
-//            }
-//            .debounce(1000, TimeUnit.MILLISECONDS, Schedulers.computation())
-//            .observeOn((AndroidSchedulers.mainThread()))
-//            .subscribe {
-//                wordsLiveMutable.value = it
-//            }
 
     }
 
